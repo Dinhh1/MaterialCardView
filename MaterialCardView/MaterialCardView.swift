@@ -9,47 +9,47 @@
 import UIKit
 
 enum MaterialAnimationTimingFunction {
-    case SwiftEnterInOut
-    case SwiftExitInOut
+    case swiftEnterInOut
+    case swiftExitInOut
 
     func timingFunction () -> CAMediaTimingFunction {
         switch self {
 
-        case .SwiftEnterInOut:
+        case .swiftEnterInOut:
             return CAMediaTimingFunction (controlPoints: 0.4027, 0, 0.1, 1)
 
-        case .SwiftExitInOut:
+        case .swiftExitInOut:
             return CAMediaTimingFunction (controlPoints: 0.4027, 0, 0.2256, 1)
         }
     }
 }
 
 enum MaterialRippleLocation {
-    case Center
-    case TouchLocation
+    case center
+    case touchLocation
 }
 
 
 extension UIView {
 
-    func addRipple (action: (()->Void)?) {
+    func addRipple (_ action: (()->Void)?) {
         addRipple(true, action: action)
     }
 
     func addRipple (
-        withOverlay: Bool,
+        _ withOverlay: Bool,
         action: (()->Void)?) {
             addRipple(
                 UIColor.Gray(51, alpha: 0.1),
                 duration: 0.9,
-                location: .TouchLocation,
+                location: .touchLocation,
                 withOverlay: withOverlay,
                 action: action)
     }
 
     func addRipple (
-        color: UIColor,
-        duration: NSTimeInterval,
+        _ color: UIColor,
+        duration: TimeInterval,
         location: MaterialRippleLocation,
         withOverlay: Bool,
         action: (()->Void)?) {
@@ -63,20 +63,20 @@ extension UIView {
                 action: action)
 
             addTapGesture(1, action: { [unowned self] (tap) -> () in
-                ripple.animate(tap.locationInView (self))
+                ripple.animate(tap.location (in: self))
                 action? ()
                 })
     }
 }
 
-@objc public class RippleLayer: CALayer {
+@objc open class RippleLayer: CALayer {
 
 
     // MARK: Properties
 
     var color: UIColor!
-    var animationDuration: NSTimeInterval!
-    var location: MaterialRippleLocation! = .TouchLocation
+    var animationDuration: TimeInterval!
+    var location: MaterialRippleLocation! = .touchLocation
 
     var action: (()->Void)?
     var overlay: CALayer?
@@ -99,7 +99,7 @@ extension UIView {
         let anim = CAAnimationGroup ()
         anim.animations = [scale, opacity]
         anim.duration = self.animationDuration
-        anim.timingFunction = MaterialAnimationTimingFunction.SwiftEnterInOut.timingFunction()
+        anim.timingFunction = MaterialAnimationTimingFunction.swiftEnterInOut.timingFunction()
 
         return anim
         } ()
@@ -109,7 +109,7 @@ extension UIView {
         overlayAnim.fromValue = 1
         overlayAnim.toValue = 0
         overlayAnim.duration = self.animationDuration
-        overlayAnim.timingFunction = MaterialAnimationTimingFunction.SwiftEnterInOut.timingFunction()
+        overlayAnim.timingFunction = MaterialAnimationTimingFunction.swiftEnterInOut.timingFunction()
 
         return overlayAnim
         } ()
@@ -122,14 +122,14 @@ extension UIView {
         super.init(coder: aDecoder)
     }
 
-    override init(layer: AnyObject) {
+    override init(layer: Any) {
         super.init(layer: layer)
     }
 
     init (
         superLayer: CALayer,
         color: UIColor,
-        animationDuration: NSTimeInterval,
+        animationDuration: TimeInterval,
         location: MaterialRippleLocation,
         withOverlay: Bool,
         action: (()->Void)?) {
@@ -151,18 +151,18 @@ extension UIView {
 
     // MARK: Setup
 
-    func initOverlay (superLayer: CALayer) {
+    func initOverlay (_ superLayer: CALayer) {
         overlay = CALayer ()
         overlay!.frame = superLayer.frame
-        overlay!.backgroundColor = UIColor.Gray(0, alpha: 0.05).CGColor
+        overlay!.backgroundColor = UIColor.Gray(0, alpha: 0.05).cgColor
         overlay!.opacity = 0
         superLayer.addSublayer(overlay!)
     }
 
-    func initRipple (superLayer: CALayer) {
+    func initRipple (_ superLayer: CALayer) {
         let size = min(superLayer.frame.size.width, superLayer.frame.size.height) / 2
         frame = CGRect (x: 0, y: 0, width: size, height: size)
-        backgroundColor = color.CGColor
+        backgroundColor = color.cgColor
         opacity = 0
         cornerRadius = size/2
 
@@ -175,11 +175,11 @@ extension UIView {
 
     // MARK: Animate
 
-    func animate (touchLocation: CGPoint) {
+    func animate (_ touchLocation: CGPoint) {
 
         CATransaction.begin()
         CATransaction.setValue(true, forKey: kCATransactionDisableActions)
-        if location == .TouchLocation {
+        if location == .touchLocation {
             position = touchLocation
         } else {
             position = superlayer!.position
@@ -188,10 +188,10 @@ extension UIView {
 
         let animationGroup = rippleAnimation as! CAAnimationGroup
         if let over = overlay {
-            over.addAnimation(overlayAnimation, forKey: "overlayAnimation")
+            over.add(overlayAnimation, forKey: "overlayAnimation")
         }
 
-        addAnimation(animationGroup, forKey: "rippleAnimation")
+        add(animationGroup, forKey: "rippleAnimation")
     }
 
 }
@@ -242,7 +242,7 @@ extension UIFont {
 }
 
 
-@objc public class MaterialCardAppearance : NSObject {
+@objc open class MaterialCardAppearance : NSObject {
 
     var headerBackgroundColor: UIColor
     var cellBackgroundColor: UIColor
@@ -256,7 +256,7 @@ extension UIFont {
 
     var shadowColor: UIColor
     var rippleColor: UIColor
-    var rippleDuration: NSTimeInterval
+    var rippleDuration: TimeInterval
 
     init (
         headerBackgroundColor: UIColor,
@@ -268,7 +268,7 @@ extension UIFont {
         textColor: UIColor,
         shadowColor: UIColor,
         rippleColor: UIColor,
-        rippleDuration: NSTimeInterval) {
+        rippleDuration: TimeInterval) {
 
             self.headerBackgroundColor = headerBackgroundColor
             self.cellBackgroundColor = cellBackgroundColor
@@ -286,7 +286,7 @@ extension UIFont {
     }
 }
 
-@objc public class MaterialCardCell: UIView {
+@objc open class MaterialCardCell: UIView {
 
 
     // MARK: Constants
@@ -297,7 +297,7 @@ extension UIFont {
 
     // MARK: Properties
 
-    private var parentCard: MaterialCardView!
+    fileprivate var parentCard: MaterialCardView!
 
     var bottomLine: UIView?
 
@@ -318,7 +318,7 @@ extension UIFont {
 
     // MARK: Create
 
-    func addTitle (title: String) {
+    func addTitle (_ title: String) {
         let title = UILabel (
             x: itemPadding,
             y: h,
@@ -326,12 +326,12 @@ extension UIFont {
             padding: itemPadding,
             text: title,
             textColor: parentCard.appearance.titleColor,
-            textAlignment: .Left,
+            textAlignment: .left,
             font: parentCard.appearance.titleFont)
         addView(title)
     }
 
-    func addText (text: String) {
+    func addText (_ text: String) {
         let text = UILabel (
             x: itemPadding,
             y: h,
@@ -339,12 +339,12 @@ extension UIFont {
             padding: itemPadding,
             text: text,
             textColor: parentCard.appearance.textColor,
-            textAlignment: .Left,
+            textAlignment: .left,
             font: parentCard.appearance.textFont)
         addView(text)
     }
 
-    func addView (view: UIView) {
+    func addView (_ view: UIView) {
         addSubview(view)
         h += view.h
     }
@@ -368,25 +368,25 @@ extension UIFont {
     }
 }
 
-@objc public class MaterialCardView: UIView {
+@objc open class MaterialCardView: UIView {
 
 
     // MARK: Constants
 
-    public let cardRadius: CGFloat = 3
-    public let rippleDuration: NSTimeInterval = 0.9
-    public let shadowOpacity: Float = 0.5
-    public let shadowRadius: CGFloat = 1.5
-    public let estimatedRowHeight: CGFloat = 53
-    public let estimatedHeaderHeight: CGFloat = 40
+    open let cardRadius: CGFloat = 3
+    open let rippleDuration: TimeInterval = 0.9
+    open let shadowOpacity: Float = 0.5
+    open let shadowRadius: CGFloat = 1.5
+    open let estimatedRowHeight: CGFloat = 53
+    open let estimatedHeaderHeight: CGFloat = 40
 
 
 
     // MARK: Properties
 
-    public var appearance: MaterialCardAppearance!
-    public var items: [MaterialCardCell] = []
-    public var contentView: UIView!
+    open var appearance: MaterialCardAppearance!
+    open var items: [MaterialCardCell] = []
+    open var contentView: UIView!
 
 
 
@@ -404,7 +404,7 @@ extension UIFont {
         fatalError("This class does not support NSCoding")
     }
 
-    public convenience init(frame: CGRect, value: MaterialCardAppearance!) {
+    public convenience init(frame: CGRect, value: MaterialCardAppearance?) {
       self.init(frame: frame);
       h = 0
       if let valueConst = value {
@@ -448,7 +448,8 @@ extension UIFont {
             currentY += item.h
 
             item.removeBottomLine()
-            if ++current < items.count {
+            current += 1
+            if current < items.count {
                 item.drawBottomLine()
             }
         }
@@ -457,7 +458,7 @@ extension UIFont {
         materialize()
     }
 
-    public func materialize () {
+    open func materialize () {
 
         self.contentView.backgroundColor = self.backgroundColor;
 
@@ -471,35 +472,35 @@ extension UIFont {
         self.contentView.setCornerRadius(self.cardRadius)
     }
 
-    public func shadowRadiusAnimation (to: CGFloat) {
+    open func shadowRadiusAnimation (_ to: CGFloat) {
 
         let radiusAnim = CABasicAnimation (keyPath: "shadowRadius")
         radiusAnim.fromValue = layer.shadowRadius
         radiusAnim.toValue = to
         radiusAnim.duration = rippleDuration
-        radiusAnim.timingFunction = MaterialAnimationTimingFunction.SwiftEnterInOut.timingFunction()
+        radiusAnim.timingFunction = MaterialAnimationTimingFunction.swiftEnterInOut.timingFunction()
         radiusAnim.autoreverses = true
 
         let offsetAnim = CABasicAnimation (keyPath: "shadowOffset")
-        offsetAnim.fromValue = NSValue (CGSize: layer.shadowOffset)
-        offsetAnim.toValue = NSValue (CGSize: layer.shadowOffset + CGSize (width: 0, height: to))
+        offsetAnim.fromValue = NSValue (cgSize: layer.shadowOffset)
+        offsetAnim.toValue = NSValue (cgSize: layer.shadowOffset + CGSize (width: 0, height: to))
         offsetAnim.duration = rippleDuration
-        offsetAnim.timingFunction = MaterialAnimationTimingFunction.SwiftEnterInOut.timingFunction()
+        offsetAnim.timingFunction = MaterialAnimationTimingFunction.swiftEnterInOut.timingFunction()
         offsetAnim.autoreverses = true
 
         let anim = CAAnimationGroup ()
         anim.animations = [radiusAnim, offsetAnim]
         anim.duration = rippleDuration*2
-        anim.timingFunction = MaterialAnimationTimingFunction.SwiftEnterInOut.timingFunction()
+        anim.timingFunction = MaterialAnimationTimingFunction.swiftEnterInOut.timingFunction()
 
-        layer.addAnimation(anim, forKey: "shadowAnimation")
+        layer.add(anim, forKey: "shadowAnimation")
     }
 
-    override public func addRipple(action: (() -> Void)?) {
+    override open func addRipple(_ action: (() -> Void)?) {
         self.contentView.addRipple(
             self.appearance.rippleColor,
             duration: self.appearance.rippleDuration,
-            location: .TouchLocation,
+            location: .touchLocation,
             withOverlay: false,
             action: { [unowned self] sender in
                 self.shadowRadiusAnimation(6)
@@ -511,51 +512,51 @@ extension UIFont {
 
     // MARK: Add Cell
 
-    public func addHeader (title: String) {
+    open func addHeader (_ title: String) {
         let cell = MaterialCardCell (card: self)
         cell.backgroundColor = self.appearance.headerBackgroundColor
 
         cell.addTitle(title)
         cell.h = max (cell.h, estimatedHeaderHeight)
 
-        items.insert(cell, atIndex: 0)
+        items.insert(cell, at: 0)
         add(cell)
     }
 
-    public func addHeaderView (view: UIView) {
+    open func addHeaderView (_ view: UIView) {
         let cell = MaterialCardCell (card: self)
         cell.backgroundColor = self.appearance.headerBackgroundColor
 
         cell.addView(view)
 
-        items.insert(cell, atIndex: 0)
+        items.insert(cell, at: 0)
         add(cell)
     }
 
 
-    public func addFooter (title: String) {
+    open func addFooter (_ title: String) {
         let cell = MaterialCardCell (card: self)
         cell.backgroundColor = self.appearance.headerBackgroundColor
 
         cell.addTitle(title)
         cell.h = max (cell.h, estimatedHeaderHeight)
 
-        items.insert(cell, atIndex: items.count)
+        items.insert(cell, at: items.count)
         add(cell)
     }
 
-    public func addFooterView (view: UIView) {
+    open func addFooterView (_ view: UIView) {
         let cell = MaterialCardCell (card: self)
         cell.backgroundColor = self.appearance.headerBackgroundColor
 
         cell.addView(view)
 
-        items.insert(cell, atIndex: items.count)
+        items.insert(cell, at: items.count)
         add(cell)
     }
 
 
-    public func addCell (text: String, action: (()->Void)? = nil) {
+    open func addCell (_ text: String, action: (()->Void)? = nil) {
         let cell = MaterialCardCell (card: self)
         cell.backgroundColor = self.appearance.cellBackgroundColor
 
@@ -566,7 +567,7 @@ extension UIFont {
             cell.addRipple(
                 self.appearance.rippleColor,
                 duration: self.appearance.rippleDuration,
-                location: .TouchLocation,
+                location: .touchLocation,
                 withOverlay: true,
                 action: act)
         }
@@ -575,7 +576,7 @@ extension UIFont {
         add(cell)
     }
 
-    public func addCellView (view: UIView, action: (()->Void)? = nil) {
+    open func addCellView (_ view: UIView, action: (()->Void)? = nil) {
         let cell = MaterialCardCell (card: self)
         cell.backgroundColor = self.appearance.cellBackgroundColor
 
@@ -585,7 +586,7 @@ extension UIFont {
             cell.addRipple(
                 self.appearance.rippleColor,
                 duration: self.appearance.rippleDuration,
-                location: .TouchLocation,
+                location: .touchLocation,
                 withOverlay: true,
                 action: act)
         }
@@ -594,7 +595,7 @@ extension UIFont {
         add(cell)
     }
 
-    public func addCell (cell: MaterialCardCell) {
+    open func addCell (_ cell: MaterialCardCell) {
         cell.backgroundColor = self.appearance.cellBackgroundColor
 
         items.append(cell)
@@ -602,7 +603,7 @@ extension UIFont {
     }
 
 
-    private func add (cell: MaterialCardCell) {
+    fileprivate func add (_ cell: MaterialCardCell) {
         self.contentView.addSubview(cell)
         h += cell.h
 
@@ -613,14 +614,14 @@ extension UIFont {
 
     // MARK: Remove Cell
 
-    func removeCellAtIndex (index: Int) {
+    func removeCellAtIndex (_ index: Int) {
         if index < items.count {
             let cell = items[index]
             removeCell(cell)
         }
     }
 
-    func removeCell (cell: MaterialCardCell) {
+    func removeCell (_ cell: MaterialCardCell) {
         cell.removeFromSuperview()
         items.removeObject(cell)
 
